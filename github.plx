@@ -17,7 +17,7 @@ DOMAIN, hub.incept.pw, DIRECT
 DOMAIN, raw.kkgithub.com, DIRECT
 
 [Script]
-http-request ^https:\/\/raw\.githubusercontent\.com\/ script-path=https://raw.githubusercontent.com/svipm/loon/refs/heads/main/github.js, tag=GitHub加速
+http-request ^https:\/\/raw\.githubusercontent\.com\/ script-path=https://gh-proxy.org/https://raw.githubusercontent.com/svipm/loon/refs/heads/main/github.js, tag=GitHub加速
 
 [MitM]
 hostname=raw.githubusercontent.com
