@@ -18,10 +18,10 @@
 ^https?:\/\/raw\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://raw.githubusercontent.com/$1 302
 
 # gist raw
-^https?:\/\/gist\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://gist.githubusercontent.com/$1 302
+#^https?:\/\/gist\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://gist.githubusercontent.com/$1 302
 
 # GitHub API
-^https?:\/\/api\.github\.com\/(.+)$ https://gh-proxy.com/https://api.github.com/$1 302
+#^https?:\/\/api\.github\.com\/(.+)$ https://gh-proxy.com/https://api.github.com/$1 302
 
 # nightly.link，谨慎开启
 # ^https?:\/\/nightly\.link\/(.+)$ https://gh-proxy.com/https://nightly.link/$1 302
