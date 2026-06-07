@@ -1,0 +1,30 @@
+#!name=GitHub 加速
+#!desc=使用 gh-proxy.com 加速 GitHub 源码、Raw、Release、Gist、API 等资源下载
+#!author=local
+
+[URL Rewrite]
+
+# GitHub 分支源码 / Release 源码
+^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/archive\/refs\/heads\/(.+\.zip)$ https://gh-proxy.com/https://github.com/$1/archive/refs/heads/$2 302
+^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/archive\/refs\/tags\/(.+\.zip)$ https://gh-proxy.com/https://github.com/$1/archive/refs/tags/$2 302
+
+# GitHub Release 文件
+^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/releases\/download\/(.+)$ https://gh-proxy.com/https://github.com/$1/releases/download/$2 302
+
+# GitHub blob 文件，例如 https://github.com/user/repo/blob/main/install.sh
+^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/blob\/(.+)$ https://gh-proxy.com/https://github.com/$1/blob/$2 302
+
+# raw.githubusercontent.com 文件
+^https?:\/\/raw\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://raw.githubusercontent.com/$1 302
+
+# gist raw
+^https?:\/\/gist\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://gist.githubusercontent.com/$1 302
+
+# GitHub API
+^https?:\/\/api\.github\.com\/(.+)$ https://gh-proxy.com/https://api.github.com/$1 302
+
+# nightly.link，谨慎开启
+# ^https?:\/\/nightly\.link\/(.+)$ https://gh-proxy.com/https://nightly.link/$1 302
+
+[MITM]
+hostname = github.com, raw.githubusercontent.com, gist.githubusercontent.com, api.github.com
