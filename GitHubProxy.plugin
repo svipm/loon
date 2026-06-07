@@ -1,33 +1,29 @@
-
-#!name=GitHub 下载加速
-#!desc=使用 gh-proxy.com 加速 GitHub Release、源码压缩包、Raw 文件下载
+#!name=GitHub Raw & Download 加速
+#!desc=仅使用 gh-proxy.com 加速 GitHub Raw 文件和下载文件，不处理 blob/API/普通页面
 #!author=local
 
 [URL Rewrite]
 
-# GitHub Release 文件下载
+# raw.githubusercontent.com 原始文件
+# 例如：https://raw.githubusercontent.com/user/repo/main/file.txt
+# 例如：https://raw.githubusercontent.com/user/repo/refs/heads/main/file.txt
+^https?:\/\/raw\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://raw.githubusercontent.com/$1 302
+
+# github.com/raw 原始文件下载链接
+# 例如：https://github.com/user/repo/raw/main/file.txt
+^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/raw\/(.+)$ https://gh-proxy.com/https://github.com/$1/raw/$2 302
+
+# GitHub Release 下载文件
 # 例如：https://github.com/user/repo/releases/download/v1.0.0/file.tar.gz
 ^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/releases\/download\/(.+)$ https://gh-proxy.com/https://github.com/$1/releases/download/$2 302
 
-# GitHub 分支源码压缩包
+# GitHub 源码压缩包下载：branch
 # 例如：https://github.com/user/repo/archive/refs/heads/main.zip
 ^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/archive\/refs\/heads\/(.+)$ https://gh-proxy.com/https://github.com/$1/archive/refs/heads/$2 302
 
-# GitHub Tag / Release 源码压缩包
+# GitHub 源码压缩包下载：tag/release source code
 # 例如：https://github.com/user/repo/archive/refs/tags/v1.1.8.zip
 ^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/archive\/refs\/tags\/(.+)$ https://gh-proxy.com/https://github.com/$1/archive/refs/tags/$2 302
 
-# GitHub raw.githubusercontent.com 原始文件
-# 例如：https://raw.githubusercontent.com/user/repo/refs/heads/main/install.sh
-^https?:\/\/raw\.githubusercontent\.com\/(.+)$ https://gh-proxy.com/https://raw.githubusercontent.com/$1 302
-
-# GitHub 页面中的 raw 文件链接
-# 例如：https://github.com/user/repo/raw/main/install.sh
-^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/raw\/(.+)$ https://gh-proxy.com/https://github.com/$1/raw/$2 302
-
-# GitHub blob 文件链接
-# 例如：https://github.com/user/repo/blob/main/install.sh
-^https?:\/\/github\.com\/([^\/]+\/[^\/]+)\/blob\/(.+)$ https://gh-proxy.com/https://github.com/$1/blob/$2 302
-
 [MITM]
-hostname = github.com, raw.githubusercontent.com
+hostname = raw.githubusercontent.com, github.com
