@@ -2,7 +2,7 @@
 #!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains. Source: raw.hellogithub.com/hosts.json
 #!author=svipm
 #!homepage=https://github.com/521xueweihan/GitHub520
-#!date=2026-07-06T13:23:59.167Z
+#!date=2026-07-06T13:28:59.790Z
 
 [host]
 alive.github.com = 140.82.114.26
@@ -40,10 +40,8 @@ live.github.com = 140.82.114.25
 media.githubusercontent.com = 185.199.108.133
 objects.githubusercontent.com = 185.199.108.133
 pipelines.actions.githubusercontent.com = 13.107.42.16
-raw.githubusercontent.com = 185.199.108.133
 user-images.githubusercontent.com = 185.199.108.133
 vscode.dev = 150.171.110.98
 education.github.com = 140.82.112.22
 private-user-images.githubusercontent.com = 185.199.108.133
-*.githubusercontent.com = 185.199.108.133
 *.github.io = 185.199.109.153

@@ -5,10 +5,12 @@ const net = require("net");
 const SOURCE_URL = "https://raw.hellogithub.com/hosts.json";
 const SOURCE_REPO = "https://github.com/521xueweihan/GitHub520";
 const OUTPUT_FILE = path.join(__dirname, "..", "GitHubIP.plugin");
-const WILDCARD_HOSTS = [
-  "githubusercontent.com",
-  "github.io",
-];
+const EXCLUDED_HOSTS = new Set([
+  // Loon plugin updates and Script Hub conversions commonly depend on raw links.
+  // Leave raw downloads to GitHubProxy.plugin instead of pinning them to one IP.
+  "raw.githubusercontent.com",
+]);
+const WILDCARD_HOSTS = ["github.io"];
 
 function isValidHost(host) {
   return (
@@ -44,6 +46,7 @@ async function main() {
     if (!Array.isArray(row) || row.length < 2) continue;
     const [ip, host] = row;
     if (!net.isIP(ip) || !isValidHost(host)) continue;
+    if (EXCLUDED_HOSTS.has(host)) continue;
     if (!hosts.has(host)) {
       hosts.set(host, ip);
     }
