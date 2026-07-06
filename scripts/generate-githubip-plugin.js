@@ -6,11 +6,44 @@ const SOURCE_URL = "https://raw.hellogithub.com/hosts.json";
 const SOURCE_REPO = "https://github.com/521xueweihan/GitHub520";
 const OUTPUT_FILE = path.join(__dirname, "..", "GitHubIP.plugin");
 const EXCLUDED_HOSTS = new Set([
-  // Loon plugin updates and Script Hub conversions commonly depend on raw links.
-  // Leave raw downloads to GitHubProxy.plugin instead of pinning them to one IP.
+  // Download/file hosts are intentionally excluded from IP pinning.
+  // Loon plugin updates and Script Hub conversions commonly depend on raw links,
+  // while releases, archives, and codeload are better handled by GitHubProxy.plugin.
+  "codeload.github.com",
+  "github-cloud.s3.amazonaws.com",
+  "github-com.s3.amazonaws.com",
+  "github-production-release-asset-2e65be.s3.amazonaws.com",
+  "github-production-repository-file-5c1aeb.s3.amazonaws.com",
+  "github-production-user-asset-6210df.s3.amazonaws.com",
+  "objects.githubusercontent.com",
   "raw.githubusercontent.com",
 ]);
 const WILDCARD_HOSTS = ["github.io"];
+const DOWNLOAD_PROXY_RULES = [
+  "",
+  "[URL Rewrite]",
+  "",
+  "# Public raw files. Exclude svipm/* to avoid sending private or personal repository requests to a third-party proxy.",
+  "^https?:\\/\\/raw\\.githubusercontent\\.com\\/(?!svipm\\/)(.+)$ https://gh-proxy.com/https://raw.githubusercontent.com/$1 302",
+  "",
+  "# Public GitHub blob file pages. Exclude svipm/*.",
+  "^https?:\\/\\/github\\.com\\/(?!svipm\\/)([^\\/]+\\/[^\\/]+\\/blob\\/.+)$ https://gh-proxy.com/https://github.com/$1 302",
+  "",
+  "# Public release assets. Exclude svipm/*.",
+  "^https?:\\/\\/github\\.com\\/(?!svipm\\/)([^\\/]+\\/[^\\/]+\\/releases\\/download\\/.+)$ https://gh-proxy.com/https://github.com/$1 302",
+  "",
+  "# Public archive downloads. Exclude svipm/*.",
+  "^https?:\\/\\/github\\.com\\/(?!svipm\\/)([^\\/]+\\/[^\\/]+\\/archive\\/refs\\/.+)$ https://gh-proxy.com/https://github.com/$1 302",
+  "",
+  "# Public codeload archive downloads. Exclude svipm/*.",
+  "^https?:\\/\\/codeload\\.github\\.com\\/(?!svipm\\/)(.+)$ https://gh-proxy.com/https://codeload.github.com/$1 302",
+  "",
+  "# Public gist raw files. Exclude svipm/*.",
+  "^https?:\\/\\/gist\\.githubusercontent\\.com\\/(?!svipm\\/)(.+)$ https://gh-proxy.com/https://gist.githubusercontent.com/$1 302",
+  "",
+  "[MITM]",
+  "hostname = raw.githubusercontent.com, github.com, codeload.github.com, gist.githubusercontent.com",
+];
 
 function isValidHost(host) {
   return (
@@ -74,13 +107,14 @@ async function main() {
   const generatedAt = new Date().toISOString();
   const lines = [
     "#!name=GitHub IP",
-    "#!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains. Source: raw.hellogithub.com/hosts.json",
+    "#!desc=Use GitHub520 hosts.json for GitHub page/API host mapping, and gh-proxy.com for public raw/release/archive downloads",
     "#!author=svipm",
     `#!homepage=${SOURCE_REPO}`,
     `#!date=${generatedAt}`,
     "",
     "[host]",
     ...Array.from(hosts.entries()).map(([host, ip]) => `${host} = ${ip}`),
+    ...DOWNLOAD_PROXY_RULES,
     "",
   ];
 

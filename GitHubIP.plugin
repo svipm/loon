@@ -1,8 +1,8 @@
 #!name=GitHub IP
-#!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains. Source: raw.hellogithub.com/hosts.json
+#!desc=Use GitHub520 hosts.json for GitHub page/API host mapping, and gh-proxy.com for public raw/release/archive downloads
 #!author=svipm
 #!homepage=https://github.com/521xueweihan/GitHub520
-#!date=2026-07-06T13:28:59.790Z
+#!date=2026-07-06T13:36:05.912Z
 
 [host]
 alive.github.com = 140.82.114.26
@@ -18,16 +18,10 @@ avatars5.githubusercontent.com = 185.199.108.133
 camo.githubusercontent.com = 185.199.108.133
 central.github.com = 140.82.112.21
 cloud.githubusercontent.com = 185.199.108.133
-codeload.github.com = 20.205.243.165
 collector.github.com = 140.82.113.22
 desktop.githubusercontent.com = 185.199.108.133
 favicons.githubusercontent.com = 185.199.108.133
 gist.github.com = 203.98.7.65
-github-cloud.s3.amazonaws.com = 52.217.231.161
-github-com.s3.amazonaws.com = 52.216.25.228
-github-production-release-asset-2e65be.s3.amazonaws.com = 52.216.24.92
-github-production-repository-file-5c1aeb.s3.amazonaws.com = 16.182.40.217
-github-production-user-asset-6210df.s3.amazonaws.com = 54.231.160.25
 github.blog = 192.0.66.2
 github.com = 20.205.243.166
 github.community = 140.82.113.17
@@ -38,10 +32,32 @@ github.map.fastly.net = 185.199.108.133
 githubstatus.com = 185.199.109.153
 live.github.com = 140.82.114.25
 media.githubusercontent.com = 185.199.108.133
-objects.githubusercontent.com = 185.199.108.133
 pipelines.actions.githubusercontent.com = 13.107.42.16
 user-images.githubusercontent.com = 185.199.108.133
 vscode.dev = 150.171.110.98
 education.github.com = 140.82.112.22
 private-user-images.githubusercontent.com = 185.199.108.133
 *.github.io = 185.199.109.153
+
+[URL Rewrite]
+
+# Public raw files. Exclude svipm/* to avoid sending private or personal repository requests to a third-party proxy.
+^https?:\/\/raw\.githubusercontent\.com\/(?!svipm\/)(.+)$ https://gh-proxy.com/https://raw.githubusercontent.com/$1 302
+
+# Public GitHub blob file pages. Exclude svipm/*.
+^https?:\/\/github\.com\/(?!svipm\/)([^\/]+\/[^\/]+\/blob\/.+)$ https://gh-proxy.com/https://github.com/$1 302
+
+# Public release assets. Exclude svipm/*.
+^https?:\/\/github\.com\/(?!svipm\/)([^\/]+\/[^\/]+\/releases\/download\/.+)$ https://gh-proxy.com/https://github.com/$1 302
+
+# Public archive downloads. Exclude svipm/*.
+^https?:\/\/github\.com\/(?!svipm\/)([^\/]+\/[^\/]+\/archive\/refs\/.+)$ https://gh-proxy.com/https://github.com/$1 302
+
+# Public codeload archive downloads. Exclude svipm/*.
+^https?:\/\/codeload\.github\.com\/(?!svipm\/)(.+)$ https://gh-proxy.com/https://codeload.github.com/$1 302
+
+# Public gist raw files. Exclude svipm/*.
+^https?:\/\/gist\.githubusercontent\.com\/(?!svipm\/)(.+)$ https://gh-proxy.com/https://gist.githubusercontent.com/$1 302
+
+[MITM]
+hostname = raw.githubusercontent.com, github.com, codeload.github.com, gist.githubusercontent.com
