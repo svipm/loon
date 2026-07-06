@@ -5,6 +5,10 @@ const net = require("net");
 const SOURCE_URL = "https://raw.hellogithub.com/hosts.json";
 const SOURCE_REPO = "https://github.com/521xueweihan/GitHub520";
 const OUTPUT_FILE = path.join(__dirname, "..", "GitHubIP.plugin");
+const WILDCARD_HOSTS = [
+  "githubusercontent.com",
+  "github.io",
+];
 
 function isValidHost(host) {
   return (
@@ -49,6 +53,21 @@ async function main() {
     throw new Error("No valid host entries were found");
   }
 
+  for (const domain of WILDCARD_HOSTS) {
+    const candidates = Array.from(hosts.entries())
+      .filter(([host]) => host === domain || host.endsWith(`.${domain}`))
+      .map(([, ip]) => ip);
+    if (candidates.length === 0) continue;
+
+    const counts = new Map();
+    for (const ip of candidates) {
+      counts.set(ip, (counts.get(ip) || 0) + 1);
+    }
+    const [ip] = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+    hosts.set(`*.${domain}`, ip);
+  }
+
   const generatedAt = new Date().toISOString();
   const lines = [
     "#!name=GitHub IP",
@@ -57,7 +76,7 @@ async function main() {
     `#!homepage=${SOURCE_REPO}`,
     `#!date=${generatedAt}`,
     "",
-    "[Host]",
+    "[host]",
     ...Array.from(hosts.entries()).map(([host, ip]) => `${host} = ${ip}`),
     "",
   ];
