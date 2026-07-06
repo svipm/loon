@@ -4,7 +4,9 @@
 #!tag=GitHub,Host,Download
 #!homepage=https://github.com/521xueweihan/GitHub520
 #!icon=https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/GitHub.png
-#!date=2026-07-06T13:42:53.726Z
+#!date=2026-07-06T13:45:57.762Z
+#!warning=For study and personal testing only. Delete within 24 hours. Do not use for illegal, infringing, unauthorized, commercial, or abusive purposes. Use at your own risk.
+#!notice=Do not proxy private repositories, login requests, cookies, tokens, or sensitive URLs through third-party services.
 
 [host]
 alive.github.com = 140.82.114.26

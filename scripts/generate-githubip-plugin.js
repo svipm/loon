@@ -114,6 +114,8 @@ async function main() {
     `#!homepage=${SOURCE_REPO}`,
     `#!icon=${ICON_URL}`,
     `#!date=${generatedAt}`,
+    "#!warning=For study and personal testing only. Delete within 24 hours. Do not use for illegal, infringing, unauthorized, commercial, or abusive purposes. Use at your own risk.",
+    "#!notice=Do not proxy private repositories, login requests, cookies, tokens, or sensitive URLs through third-party services.",
     "",
     "[host]",
     ...Array.from(hosts.entries()).map(([host, ip]) => `${host} = ${ip}`),
