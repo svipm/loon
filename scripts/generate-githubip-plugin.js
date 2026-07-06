@@ -52,10 +52,9 @@ async function main() {
   const generatedAt = new Date().toISOString();
   const lines = [
     "#!name=GitHub IP",
-    "#!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains",
+    "#!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains. Source: raw.hellogithub.com/hosts.json",
     "#!author=svipm",
     `#!homepage=${SOURCE_REPO}`,
-    `#!source=${SOURCE_URL}`,
     `#!date=${generatedAt}`,
     "",
     "[host]",

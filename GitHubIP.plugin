@@ -1,9 +1,8 @@
 #!name=GitHub IP
-#!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains
+#!desc=Use GitHub520 hosts.json to fix GitHub DNS pollution for GitHub domains. Source: raw.hellogithub.com/hosts.json
 #!author=svipm
 #!homepage=https://github.com/521xueweihan/GitHub520
-#!source=https://raw.hellogithub.com/hosts.json
-#!date=2026-07-06T12:55:47.824Z
+#!date=2026-07-06T13:13:50.062Z
 
 [host]
 alive.github.com = 140.82.114.26
