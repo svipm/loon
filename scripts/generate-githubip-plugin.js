@@ -58,6 +58,23 @@ function isValidHost(host) {
   );
 }
 
+function formatPluginDate(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return [
+    date.getFullYear(),
+    "-",
+    pad(date.getMonth() + 1),
+    "-",
+    pad(date.getDate()),
+    " ",
+    pad(date.getHours()),
+    ":",
+    pad(date.getMinutes()),
+    ":",
+    pad(date.getSeconds()),
+  ].join("");
+}
+
 async function main() {
   const response = await fetch(SOURCE_URL, {
     headers: {
@@ -105,7 +122,7 @@ async function main() {
     hosts.set(`*.${domain}`, ip);
   }
 
-  const generatedAt = new Date().toISOString();
+  const generatedAt = formatPluginDate(new Date());
   const lines = [
     "#!name=GitHub IP",
     "#!desc=GitHub domain host mapping from GitHub520, with gh-proxy.com for public raw/release/archive downloads. For study only.",
