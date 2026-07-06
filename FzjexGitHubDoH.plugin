@@ -1,5 +1,5 @@
 #!name=Fzjex GitHub LinuxDo DoH
-#!desc=Resolve GitHub and linux.do domains through https://dns.fzjex.cn{?dns}. For study and personal testing only.
+#!desc=Resolve GitHub and linux.do domains through https://dns.fzjex.cn/. For study and personal testing only.
 #!author=svipm
 #!tag=GitHub,DNS,DoH
 #!icon=https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/GitHub.png
@@ -12,7 +12,7 @@
 # 严禁用于违法违规、侵权、未授权访问、绕过平台限制、商业倒卖或任何不正当用途。
 # 本插件只指定 GitHub 和 linux.do 相关域名使用 DoH 解析，不提供访问授权、代理服务或平台限制绕过能力。
 # 使用第三方 DoH 服务可能暴露查询域名、查询时间和网络信息；请自行评估隐私、安全、稳定性和合规风险。
-# 如果 Loon 当前版本不支持带 {?dns} 的 DoH URI Template，本插件可能不会生效。
+# 本插件按 Loon host server 写法使用 https://dns.fzjex.cn/。
 
 [host]
 linux.do = server:https://dns.fzjex.cn/
