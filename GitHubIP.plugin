@@ -1,8 +1,10 @@
 #!name=GitHub IP
-#!desc=Use GitHub520 hosts.json for GitHub page/API host mapping, and gh-proxy.com for public raw/release/archive downloads
+#!desc=GitHub domain host mapping from GitHub520, with gh-proxy.com for public raw/release/archive downloads. For study only.
 #!author=svipm
+#!tag=GitHub,Host,Download
 #!homepage=https://github.com/521xueweihan/GitHub520
-#!date=2026-07-06T13:36:05.912Z
+#!icon=https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/GitHub.png
+#!date=2026-07-06T13:38:08.753Z
 
 [host]
 alive.github.com = 140.82.114.26

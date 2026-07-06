@@ -4,6 +4,7 @@ const net = require("net");
 
 const SOURCE_URL = "https://raw.hellogithub.com/hosts.json";
 const SOURCE_REPO = "https://github.com/521xueweihan/GitHub520";
+const ICON_URL = "https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/GitHub.png";
 const OUTPUT_FILE = path.join(__dirname, "..", "GitHubIP.plugin");
 const EXCLUDED_HOSTS = new Set([
   // Download/file hosts are intentionally excluded from IP pinning.
@@ -107,9 +108,11 @@ async function main() {
   const generatedAt = new Date().toISOString();
   const lines = [
     "#!name=GitHub IP",
-    "#!desc=Use GitHub520 hosts.json for GitHub page/API host mapping, and gh-proxy.com for public raw/release/archive downloads",
+    "#!desc=GitHub domain host mapping from GitHub520, with gh-proxy.com for public raw/release/archive downloads. For study only.",
     "#!author=svipm",
+    "#!tag=GitHub,Host,Download",
     `#!homepage=${SOURCE_REPO}`,
+    `#!icon=${ICON_URL}`,
     `#!date=${generatedAt}`,
     "",
     "[host]",
