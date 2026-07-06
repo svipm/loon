@@ -57,7 +57,7 @@ async function main() {
     `#!homepage=${SOURCE_REPO}`,
     `#!date=${generatedAt}`,
     "",
-    "[host]",
+    "[Host]",
     ...Array.from(hosts.entries()).map(([host, ip]) => `${host} = ${ip}`),
     "",
   ];
