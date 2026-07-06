@@ -1,7 +1,0 @@
-#!name=linux.do 指定 DoH
-#!desc=将 linux.do 及其子域名的 DNS 查询指定到 https://hk.pms.loc.cc/dohgo
-#!author=zima
-
-[Host]
-linux.do = server:https://hk.pms.loc.cc/dohgo
-*.linux.do = server:https://hk.pms.loc.cc/dohgo

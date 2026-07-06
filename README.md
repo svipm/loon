@@ -9,9 +9,22 @@
 功能：
 
 - 使用 `GitHub520` 的 `hosts.json` 自动生成 GitHub 页面/API/静态资源域名的 `[host]` 映射。
-- 使用 `gh-proxy.com` 加速公开 `raw`、`release`、`archive`、`codeload`、`gist` 下载链接。
+- 在 Loon 插件设置里通过 `代理模式` 选择 `Auto`、`gh-proxy.com`、`ghproxy.net`、`gh.3w.pm` 或 `ghproxy.vip`。
+- `Auto` 模式会定时测速可选公益代理，并为公开 `raw`、`release`、`archive`、`codeload`、`gist` 下载链接选择较快的代理。
+- GitHub 用户头像域名走 `[host]` IP 映射，不经过第三方下载代理。
 - 排除 `svipm/*` 路径，避免自有仓库或可能涉及私有内容的请求经过第三方代理。
 - GitHub Actions 每小时自动更新一次，并刷新插件头部 `#!date` 时间，方便 Loon 显示更新时间。
+
+当前纳入的公开下载代理：
+
+- `gh-proxy.com`：当前测试 raw 文件可用，作为默认值。
+- `ghproxy.net`：当前测试 raw 文件可用，头像图片不可用。
+- `gh.3w.pm`：当前测试 raw 文件可用，头像图片不可用。
+- `ghproxy.vip`：当前测试 raw 文件可用，头像图片不可用。
+
+未纳入的候选站点：
+
+- `githubproxy.cc`、`ghproxy.site`：当前测试虽然返回 200，但返回体积与原始 raw 文件不一致，疑似返回网页壳或非目标内容，暂不加入自动选择。
 
 订阅地址：
 
