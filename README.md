@@ -45,6 +45,22 @@ https://github.com/521xueweihan/GitHub520
 https://raw.hellogithub.com/hosts.json
 ```
 
+## FzjexGitHubDoH.plugin
+
+`FzjexGitHubDoH.plugin` 用于让 Loon 对 GitHub、GitHub 子域名、`linux.do` 和 `linux.do` 子域名使用 `https://dns.fzjex.cn{?dns}` 进行 DoH 解析。
+
+订阅地址：
+
+```text
+https://raw.githubusercontent.com/svipm/loon/main/FzjexGitHubDoH.plugin
+```
+
+注意事项：
+
+- 不要把它和 `GitHubIP.plugin` 同时作为 GitHub 解析测试方案启用；一个是固定 `[host]` IP，一个是指定 DoH 解析，同时启用会增加排查难度。
+- 手机里的 `127.0.0.1` 是手机本机，不是 Windows 上的 `Steamcommunity_302`，所以本插件不会把域名指向 `127.0.0.1`。
+- `https://dns.fzjex.cn{?dns}` 是 DoH URI Template；如果当前 Loon 版本不支持这种模板写法，插件可能不会生效。
+
 ## 使用前须知
 
 使用本仓库前，请先确认你理解以下事项：
