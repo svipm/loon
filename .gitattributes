@@ -1,0 +1,4 @@
+*.md text eol=lf
+*.js text eol=lf
+*.yml text eol=lf
+*.plugin text eol=lf

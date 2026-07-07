@@ -1,6 +1,68 @@
 # loon
 
-个人 Loon 插件仓库，仅供学习、研究与个人网络环境测试使用。
+个人 Loon 插件仓库，仅供学习、研究与个人网络环境测试使用。默认推荐 iPhone 上使用 `GitHubFast.plugin` 优化 GitHub 访问。
+
+
+## 推荐方案：GitHubFast.plugin
+
+`GitHubFast.plugin` 是 iPhone 上优先使用的 GitHub 访问优化插件。它把 GitHub 页面、API、头像、静态资源和下载相关域名交给 `https://doh.pub/dns-query` 做 DoH 解析，减少本地 DNS 污染影响；同时只对公开 `raw`、`release`、`archive`、`codeload`、`gist` 下载链接启用可选公益代理。
+
+订阅地址：
+
+```text
+https://raw.githubusercontent.com/svipm/loon/main/GitHubFast.plugin
+```
+
+该订阅地址需要先把本仓库中的 `GitHubFast.plugin` 提交并推送到 `main` 分支后才会生效。未推送前，可先把本地 `GitHubFast.plugin` 通过 AirDrop、iCloud Drive、文件 App 或自建静态链接导入 Loon。
+
+如果 raw 链接在当前网络下无法加载，可先用代理地址导入：
+
+```text
+https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/GitHubFast.plugin
+```
+
+推荐设置：
+
+1. 在 Loon 中导入并启用 `GitHubFast.plugin`。
+2. 插件参数 `代理模式` 保持 `Auto`, 它会每 6 小时和网络切换时测速一次。
+3. 按 Loon 提示开启 MITM, 并只勾选插件声明的 GitHub 下载域名。
+4. 不要同时启用 `GitHubIP.plugin` 或 `FzjexGitHubDoH.plugin`, 避免多个 GitHub 解析方案互相覆盖。
+5. 私有仓库、登录态请求、Cookie、Token、鉴权链接和敏感文件不要通过第三方下载代理访问；脚本会跳过常见敏感请求，但不要把它当作权限隔离边界。
+
+适用判断：
+
+- 如果 GitHub 网页打不开、图片或静态资源加载异常，优先使用本插件。
+- 如果 GitHub 页面能打开但 raw、release、archive 下载慢，本插件的下载代理规则会优先改善这些公开下载链接。
+- 如果只想测试纯 DoH 解析，不需要下载代理，使用 `FzjexGitHubDoH.plugin`。
+- 如果只想测试固定 IP hosts，不需要 DoH，使用 `GitHubIP.plugin`。
+
+本地验证：
+
+```text
+node --check scripts/github-download-proxy-auto.js
+node --check scripts/generate-githubip-plugin.js
+node scripts/validate-githubfast.js
+node scripts/validate-githubfast.js --network
+```
+
+iPhone Loon 实机验证清单：
+
+1. 导入并启用 `GitHubFast.plugin`。
+2. 插件参数 `代理模式` 选择 `Auto`。
+3. 在 Loon 中允许插件声明的 MITM 域名，并确认证书已安装且信任。
+4. 关闭 `GitHubIP.plugin`、`FzjexGitHubDoH.plugin` 或其他 GitHub 解析/重写插件。
+5. 断开并重新连接 Loon，让 `network-changed` 脚本触发一次测速。
+6. 在 Safari 打开 `https://github.com/`，确认网页首页、登录态页面、头像和静态资源加载正常。
+7. 打开一个公开 raw 链接，例如 `https://raw.githubusercontent.com/microsoft/vscode/main/package.json`，确认能快速显示 JSON。
+8. 打开一个公开 release 下载链接，确认能开始下载。
+9. 打开 Loon 日志，确认 `GitHub Proxy Auto Select` 执行成功，且没有私有仓库、Cookie、Authorization 或 token 链接被改写到第三方代理。
+
+发布前检查清单：
+
+1. 确认准备提交的文件包含 `.gitattributes`、`GitHubFast.plugin`、`README.md`、`.github/workflows/update-githubip.yml`、`scripts/github-download-proxy-auto.js`、`scripts/generate-githubip-plugin.js`、`scripts/validate-githubfast.js` 和 `GitHubIP.plugin`。
+2. 不提交 `FzjexGitHubDoH 20260706 231956 4863004.plugin` 这类本地重复备份文件。
+3. 运行本地验证和网络验证。
+4. 推送到 `main` 后, 再用 iPhone Loon 订阅 `https://raw.githubusercontent.com/svipm/loon/main/GitHubFast.plugin`。
 
 ## GitHubIP.plugin
 
@@ -9,22 +71,21 @@
 功能：
 
 - 使用 `GitHub520` 的 `hosts.json` 自动生成 GitHub 页面/API/静态资源域名的 `[host]` 映射。
-- 在 Loon 插件设置里通过 `代理模式` 选择 `Auto`、`gh-proxy.com`、`ghproxy.net`、`gh.3w.pm` 或 `ghproxy.vip`。
-- `Auto` 模式会定时测速可选公益代理，并为公开 `raw`、`release`、`archive`、`codeload`、`gist` 下载链接选择较快的代理。
+- 在 Loon 插件设置里通过 `代理模式` 选择 `Auto`、`ghproxy.net`、`gh-proxy.com` 或 `gh.3w.pm`。
+- `Auto` 模式会每 6 小时和网络切换时测速可选公益代理，并为公开 `raw`、`release`、`archive`、`codeload`、`gist` 下载链接选择较快的代理。
 - GitHub 用户头像域名走 `[host]` IP 映射，不经过第三方下载代理。
-- 排除 `svipm/*` 路径，避免自有仓库或可能涉及私有内容的请求经过第三方代理。
+- 排除 `svipm/*` 路径，并跳过带 Cookie、Authorization 或常见签名/Token 查询参数的请求，降低私有或敏感链接误走第三方代理的风险。
 - GitHub Actions 每小时自动更新一次，并刷新插件头部 `#!date` 时间，方便 Loon 显示更新时间。
 
 当前纳入的公开下载代理：
 
-- `gh-proxy.com`：当前测试 raw 文件可用，作为默认值。
-- `ghproxy.net`：当前测试 raw 文件可用，头像图片不可用。
-- `gh.3w.pm`：当前测试 raw 文件可用，头像图片不可用。
-- `ghproxy.vip`：当前测试 raw 文件可用，头像图片不可用。
+- `ghproxy.net`：当前测试 raw 文件可用，作为默认兜底值。
+- `gh-proxy.com`：当前测试 raw 文件可用。
+- `gh.3w.pm`：当前测试 raw 文件可用。
 
 未纳入的候选站点：
 
-- `githubproxy.cc`、`ghproxy.site`：当前测试虽然返回 200，但返回体积与原始 raw 文件不一致，疑似返回网页壳或非目标内容，暂不加入自动选择。
+- `githubproxy.cc`、`ghproxy.site`：当前测试虽然返回 200，但返回体积与原始 raw 文件不一致，疑似返回网页壳或非目标内容，暂不加入自动选择。`ghproxy.vip` 当前测试返回 502, 暂不加入自动选择。
 
 订阅地址：
 

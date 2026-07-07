@@ -1,15 +1,16 @@
 const STORE_KEY = "github_proxy_auto_base";
 const OPTION_KEY = "代理模式";
 const PROXY_BY_NAME = {
-  "gh-proxy.com": "https://gh-proxy.com/",
   "ghproxy.net": "https://ghproxy.net/",
+  "gh-proxy.com": "https://gh-proxy.com/",
   "gh.3w.pm": "https://gh.3w.pm/",
-  "ghproxy.vip": "https://ghproxy.vip/",
 };
 const PROXIES = Object.values(PROXY_BY_NAME);
-const DEFAULT_PROXY = PROXY_BY_NAME["gh-proxy.com"];
+const DEFAULT_PROXY = PROXY_BY_NAME["ghproxy.net"];
 const TEST_URL = "https://raw.githubusercontent.com/microsoft/vscode/main/package.json";
 const OWNER_EXCLUDE = "svipm";
+const SENSITIVE_QUERY_KEYS =
+  /(?:^|[?&;])(?:token|access_token|authenticity_token|jwt|signature|sig|x-amz-signature|x-amz-security-token|x-goog-signature|se)=/i;
 
 function isRequest() {
   return typeof $request !== "undefined" && $request && $request.url;
@@ -32,8 +33,22 @@ function isOwnPath(path) {
   return path === `/${OWNER_EXCLUDE}` || path.startsWith(`/${OWNER_EXCLUDE}/`);
 }
 
-function shouldProxy(url) {
-  const match = url.match(/^https?:\/\/([^/]+)(\/.*)?$/i);
+function hasSensitiveHeaders(headers) {
+  if (!headers || typeof headers !== "object") return false;
+  return Object.keys(headers).some((key) =>
+    /^(authorization|cookie|x-github-token)$/i.test(key) && headers[key]
+  );
+}
+
+function hasSensitiveQuery(url) {
+  return SENSITIVE_QUERY_KEYS.test(url);
+}
+
+function shouldProxy(request) {
+  const url = typeof request === "string" ? request : request.url;
+  if (hasSensitiveHeaders(request.headers) || hasSensitiveQuery(url)) return null;
+
+  const match = url.match(/^https?:\/\/([^/]+)(\/[^?#]*)?/i);
   if (!match) return null;
 
   const host = match[1].toLowerCase();
@@ -104,7 +119,7 @@ function benchmark() {
 }
 
 if (isRequest()) {
-  const base = shouldProxy($request.url);
+  const base = shouldProxy($request);
   if (!base) {
     $done({});
   } else {

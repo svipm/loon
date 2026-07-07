@@ -21,7 +21,7 @@ const EXCLUDED_HOSTS = new Set([
 ]);
 const WILDCARD_HOSTS = ["github.io"];
 const PROXY_SCRIPT_URL = "https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/scripts/github-download-proxy-auto.js";
-const PROXY_OPTIONS = ["Auto", "gh-proxy.com", "ghproxy.net", "gh.3w.pm", "ghproxy.vip"];
+const PROXY_OPTIONS = ["Auto", "ghproxy.net", "gh-proxy.com", "gh.3w.pm"];
 const DISCLAIMER_LINES = [
   "# 声明：本插件仅供学习、研究、技术交流和个人合法网络环境测试使用。",
   "# 请在下载、导入、订阅或启用后的 24 小时内自行删除、卸载或取消订阅。",
@@ -42,6 +42,7 @@ const DOWNLOAD_PROXY_RULES = [
   "",
   "# Benchmark selectable public mirrors, then cache the fastest one for Auto mode.",
   `cron "0 */6 * * *" script-path=${PROXY_SCRIPT_URL},timeout=30,tag=GitHub Proxy Auto Select,enable=true`,
+  `network-changed script-path=${PROXY_SCRIPT_URL},timeout=30,tag=GitHub Proxy Auto Select,enable=true`,
   "",
   "# Public raw/release/archive/codeload/gist downloads.",
   `http-request ^https?:\\/\\/(raw\\.githubusercontent\\.com|codeload\\.github\\.com|gist\\.githubusercontent\\.com)\\/|^https?:\\/\\/github\\.com\\/[^\\/]+\\/[^\\/]+\\/(releases\\/download|archive\\/refs)\\/ script-path=${PROXY_SCRIPT_URL},timeout=10,tag=GitHub Download Proxy,enable=true`,
@@ -128,7 +129,6 @@ async function main() {
 
   const generatedAt = formatPluginDate(new Date());
   const lines = [
-    ...DISCLAIMER_LINES,
     "#!name=GitHub IP",
     "#!desc=GitHub domain host mapping from GitHub520, plus selectable public download proxy. For study only.",
     "#!author=svipm",
@@ -139,6 +139,8 @@ async function main() {
     `#!select=代理模式,${PROXY_OPTIONS.join(",")}`,
     "#!warning=For study and personal testing only. Delete within 24 hours. Do not use for illegal, infringing, unauthorized, commercial, or abusive purposes. Use at your own risk.",
     "#!notice=Do not proxy private repositories, login requests, cookies, tokens, or sensitive URLs through third-party services.",
+    "",
+    ...DISCLAIMER_LINES,
     "",
     "[host]",
     ...Array.from(hosts.entries()).map(([host, ip]) => `${host} = ${ip}`),

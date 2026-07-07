@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: "20"
       - run: node scripts/generate-githubip-plugin.js
+      - run: node --check scripts/github-download-proxy-auto.js
+      - run: node --check scripts/generate-githubip-plugin.js
+      - run: node scripts/validate-githubfast.js
       - name: Commit changes
         run: |
           if git diff --quiet -- GitHubIP.plugin; then
