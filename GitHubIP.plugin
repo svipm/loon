@@ -4,7 +4,7 @@
 #!tag=GitHub,Host,Download
 #!homepage=https://github.com/521xueweihan/GitHub520
 #!icon=https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/GitHub.png
-#!date=2026-07-08 22:04:39
+#!date=2026-07-09 00:08:44
 #!select=代理模式,Auto,ghproxy.net,gh-proxy.com,gh.3w.pm
 #!warning=For study and personal testing only. Delete within 24 hours. Do not use for illegal, infringing, unauthorized, commercial, or abusive purposes. Use at your own risk.
 #!notice=Do not proxy private repositories, login requests, cookies, tokens, or sensitive URLs through third-party services.
@@ -23,39 +23,39 @@
 # 如果本插件内容与你的使用环境、服务条款或法律要求冲突，请立即停止使用并删除相关配置。
 
 [host]
-alive.github.com = 140.82.112.25
+alive.github.com = 140.82.114.25
 api.github.com = 20.205.243.168
 api.individual.githubcopilot.com = 140.82.113.21
-avatars.githubusercontent.com = 185.199.108.133
-avatars0.githubusercontent.com = 185.199.108.133
-avatars1.githubusercontent.com = 185.199.108.133
-avatars2.githubusercontent.com = 185.199.108.133
-avatars3.githubusercontent.com = 185.199.108.133
-avatars4.githubusercontent.com = 185.199.108.133
-avatars5.githubusercontent.com = 185.199.108.133
-camo.githubusercontent.com = 185.199.108.133
-central.github.com = 140.82.112.22
-cloud.githubusercontent.com = 185.199.108.133
-collector.github.com = 140.82.113.21
-desktop.githubusercontent.com = 185.199.108.133
-favicons.githubusercontent.com = 185.199.108.133
-gist.github.com = 243.185.187.39
+avatars.githubusercontent.com = 185.199.110.133
+avatars0.githubusercontent.com = 185.199.110.133
+avatars1.githubusercontent.com = 185.199.110.133
+avatars2.githubusercontent.com = 185.199.110.133
+avatars3.githubusercontent.com = 185.199.110.133
+avatars4.githubusercontent.com = 185.199.110.133
+avatars5.githubusercontent.com = 185.199.110.133
+camo.githubusercontent.com = 185.199.110.133
+central.github.com = 140.82.112.21
+cloud.githubusercontent.com = 185.199.110.133
+collector.github.com = 140.82.112.22
+desktop.githubusercontent.com = 185.199.110.133
+favicons.githubusercontent.com = 185.199.110.133
+gist.github.com = 59.24.3.173
 github.blog = 192.0.66.2
 github.com = 20.205.243.166
-github.community = 140.82.114.18
-github.githubassets.com = 185.199.109.215
-github.global.ssl.fastly.net = 103.97.176.73
-github.io = 185.199.108.153
-github.map.fastly.net = 185.199.108.133
-githubstatus.com = 185.199.108.153
-live.github.com = 140.82.113.25
-media.githubusercontent.com = 185.199.108.133
+github.community = 140.82.113.18
+github.githubassets.com = 185.199.108.215
+github.global.ssl.fastly.net = 156.233.67.243
+github.io = 185.199.111.153
+github.map.fastly.net = 185.199.110.133
+githubstatus.com = 185.199.111.153
+live.github.com = 140.82.113.26
+media.githubusercontent.com = 185.199.110.133
 pipelines.actions.githubusercontent.com = 13.107.42.16
-user-images.githubusercontent.com = 185.199.108.133
-vscode.dev = 150.171.110.103
-education.github.com = 140.82.113.21
-private-user-images.githubusercontent.com = 185.199.108.133
-*.github.io = 185.199.108.153
+user-images.githubusercontent.com = 185.199.110.133
+vscode.dev = 150.171.110.98
+education.github.com = 140.82.112.21
+private-user-images.githubusercontent.com = 185.199.110.133
+*.github.io = 185.199.111.153
 
 [Script]
 
