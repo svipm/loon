@@ -68,7 +68,7 @@ const AD_SLOT_KEYS = [
 const NAV_KEEP_CODES = ["one", "discovery", "vod", "my"];
 
 const VIP = {
-  nickname: "fxm",
+  nickname: "白嫖哥",
   mobile: "86 13898766789",
   vip_expiry: "2099-09-09",
   vip_updated_at: "2025-09-11 22:21:11",
