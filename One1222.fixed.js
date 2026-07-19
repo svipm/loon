@@ -13,7 +13,7 @@
  * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
  */
 
-//2026.07.19 fix4 - detail 只改 header、不动 body（对齐原作者 script-request-header）
+//2026.07.19 fix5 - detail 响应 buy=1（抓包112：完整hls已下发，客户端看buy）
 
 const $ = new Env("one");
 
@@ -598,12 +598,8 @@ function handleResponse() {
     return $done({ body: rawBody });
   }
 
-  // article/detail: 原作者只在 request 注 token，response 原样放行（不要回加密改写）
-  if (/\/article\/detail/i.test(url)) {
-    console.log("ℹ️ article/detail response passthrough（不改 body）");
-    return passthrough();
-  }
-
+  // article/detail: 先放行不再改 body 的策略已证明会留下 buy=0 试看。
+  // 抓包 112：服务端已下发完整 video_hls，客户端靠 buy 决定是否完整播。
   loadUtils()
     .then(function (utils) {
       if (!utils || typeof utils.createCryptoJS !== "function") {
@@ -701,11 +697,35 @@ function handleResponse() {
           }
         }
       }
-      // discovery / day（detail 已在上方放行）
-      else if (/\/article\/discovery/i.test(path) || /\/article\/day/i.test(path)) {
+      // discovery / day / detail
+      else if (
+        /\/article\/discovery/i.test(path) ||
+        /\/article\/day/i.test(path) ||
+        /\/article\/detail/i.test(path)
+      ) {
         if (json) {
           unlockBuyFields(json);
+          if (json.data && typeof json.data === "object") {
+            json.data.buy = 1;
+            if (json.data.is_limit_free != null) json.data.is_limit_free = 1;
+            if (json.data.is_decode != null) json.data.is_decode = 1;
+            // 有 preview 也强制走正片字段
+            if (json.data.preview_video && json.data.video_file) {
+              json.data.preview_video = json.data.video_file;
+            }
+            if (json.data.preview_video && json.data.video_hls && !json.data.video_file) {
+              json.data.preview_video = json.data.video_hls;
+            }
+          }
           changed = true;
+          if (/\/article\/detail/i.test(path)) {
+            console.log(
+              "✅ detail unlock buy=" +
+                (json.data && json.data.buy) +
+                " has_hls=" +
+                !!(json.data && json.data.video_hls)
+            );
+          }
         }
       }
       // userExtraInfo
