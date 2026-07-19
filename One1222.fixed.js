@@ -1,4 +1,19 @@
+/*
+ * 软件名称: o*N （一个）
+ * 脚本说明: 解锁内容 + 全量去广告（开屏/弹窗/视频贴片/底部 banner）
+ * 版本: 2026.07.19 fix（基于抓包 102_1784454167045）
+ *
+ * 修复点:
+ *  1. 兼容 0325api.* / api.* / jmtp.* / qqcapi.* 动态域名
+ *  2. /v2.5/ad/space 清空全部广告位（含 index-footer-banner 等）
+ *  3. bootstrap 关闭 bootstrap_ads / popup_ads，并伪造 VIP
+ *  4. 兼容 popup / vip 弹窗 / panda 弹窗等接口
+ *  5. 配合 Loon .plugin / QX rewrite 屏蔽 commercial 与 /encry/ad
+ *
+ * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
+ */
 
+//2026.07.19 fix
 
 const $ = new Env("one");
 
