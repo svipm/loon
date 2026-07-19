@@ -1,5 +1,5 @@
 #!name=一个(o*N) 去广告解锁
-#!desc=兼容0325api动态域名；清空ad/space全部广告位；关开屏/弹窗；VIP解锁 2026.07.19
+#!desc=兼容0325api；清空ad/space；关开屏/弹窗/我的页弹层；VIP解锁 2026.07.19 fix2
 #!icon=https://raw.githubusercontent.com/Yu9191/Rewrite/main/icon.png
 
 [Rewrite]
@@ -7,10 +7,12 @@
 ^https?:\/\/[^\/]+\/storage\/commercial\/ - reject
 # 广告 HLS 视频
 ^https?:\/\/[^\/]+\/encry\/ad\/ - reject
+# 游戏奖励弹窗图
+^https?:\/\/[^\/]+\/storage\/game_bonus\/ - reject
 
 [Script]
-# 一个脚本搞定：去广告 / VIP / 解锁 / token
-http-response ^https?:\/\/[^\/]+\/v2\.5\/(?:bootstrap|user\/login|user\/avatarFrame|article\/discovery|article\/day|navigation|ad\/space|my\/userExtraInfo|popup\/activityInfo|vip\/getVipGiftPopup|panda\/popup|upgrade|activityNavigations) script-path=https://raw.githubusercontent.com/svipm/loon/refs/heads/main/One1222.fixed.js, requires-body=true, timeout=60, tag=一个-响应改写
+# 一个脚本：去广告 / VIP / 解锁 / token / 我的页弹窗
+http-response ^https?:\/\/[^\/]+\/v2\.5\/(?:bootstrap|user\/login|user\/avatarFrame|user\/oneLiveInfo|article\/discovery|article\/day|navigation|ad\/space|my\/userExtraInfo|my\/unread|popup\/activityInfo|vip\/getVipGiftPopup|panda\/popup|upgrade|activityNavigations|blindBox\/getOngoingActivities) script-path=https://raw.githubusercontent.com/svipm/loon/refs/heads/main/One1222.fixed.js, requires-body=true, timeout=60, tag=一个-响应改写
 http-request ^https?:\/\/[^\/]+\/v2\.5\/article\/detail script-path=https://raw.githubusercontent.com/svipm/loon/refs/heads/main/One1222.fixed.js, timeout=60, tag=一个-token
 
 [MITM]

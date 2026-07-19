@@ -1,7 +1,7 @@
 /*
  * 软件名称: o*N （一个）
  * 脚本说明: 解锁内容 + 全量去广告（开屏/弹窗/视频贴片/底部 banner）
- * 版本: 2026.07.19 fix（基于抓包 102_1784454167045）
+ * 版本: 2026.07.19 fix（基于抓包 102 + 106（我的页弹窗））
  *
  * 修复点:
  *  1. 兼容 0325api.* / api.* / jmtp.* / qqcapi.* 动态域名
@@ -13,7 +13,7 @@
  * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
  */
 
-//2026.07.19 fix
+//2026.07.19 fix2 - my page popup + new ad slots
 
 const $ = new Env("one");
 
@@ -33,11 +33,16 @@ const AD_SLOT_KEYS = [
   "index-popup_image", // 首页弹窗图
   "index-popup_text", // 首页弹窗文
   "index-banner",
-  "index-footer-banner", // 底部轮播（抓包 35 条）
+  "index-footer-banner", // 底部轮播
   "video-pre_roll-banner", // 视频前贴
   "video-paused-banner", // 视频暂停
   "video-player-float-banner",
   "vod-player-float-banner",
+  // 抓包 106：我的页/列表新增
+  "video-list-banner",
+  "demand_image",
+  "serialize-list-image",
+  "manga-list-image",
 ];
 
 const NAV_KEEP_CODES = ["one", "discovery", "vod", "my"];
@@ -256,7 +261,7 @@ function clearAdSpace(data) {
     val = data[key];
     if (!val) continue;
     if (Array.isArray(val)) {
-      if (/ad|banner|popup|splash|commercial/i.test(key) && val.length) {
+      if (/ad|banner|popup|splash|commercial|image|list|manga|serialize|demand|video/i.test(key) && val.length) {
         data[key] = [];
         changed = true;
       }
@@ -264,7 +269,7 @@ function clearAdSpace(data) {
     }
     if (typeof val === "object") {
       hasAds = Array.isArray(val.ads) || Array.isArray(val.list);
-      nameHit = /ad|banner|popup|splash|commercial|boot|footer|float|roll/i.test(
+      nameHit = /ad|banner|popup|splash|commercial|boot|footer|float|roll|image|list|manga|serialize|demand|video/i.test(
         key
       );
       if ((hasAds || nameHit) && neuterAdSlot(val)) changed = true;
@@ -276,6 +281,33 @@ function clearAdSpace(data) {
     changed = true;
   }
   return changed;
+}
+
+
+/** 递归关闭对象里各类弹窗/引导开关字段 */
+function killPopupSwitches(node) {
+  if (!node || typeof node !== "object") return;
+  if (Array.isArray(node)) {
+    for (var i = 0; i < node.length; i++) killPopupSwitches(node[i]);
+    return;
+  }
+  var keys = Object.keys(node);
+  for (var j = 0; j < keys.length; j++) {
+    var k = keys[j];
+    var v = node[k];
+    var kl = String(k).toLowerCase();
+    if (
+      /popup_switch|guide_switch|bubble_switch|entrance_switch|is_popup|show_popup|ad_switch|ads_switch/.test(
+        kl
+      )
+    ) {
+      if (typeof v === "number" || typeof v === "string") node[k] = 0;
+    }
+    if (/popup_image|guide_image|bubble_image/i.test(k) && typeof v === "string") {
+      node[k] = "";
+    }
+    if (typeof v === "object" && v) killPopupSwitches(v);
+  }
 }
 
 function patchBootstrap(json) {
@@ -313,15 +345,50 @@ function patchBootstrap(json) {
   d.buy = 0;
   d.vip_coin = "2";
 
-  if (d.vip_gift && typeof d.vip_gift === "object") {
-    try {
-      d.vip_gift.enable = 0;
-      d.vip_gift.is_popup = 0;
-    } catch (_) {}
+  if (d.expire_prompt && typeof d.expire_prompt === "object") {
+    d.expire_prompt.switch_40 = 0;
+    d.expire_prompt.switch_60 = 0;
   }
   if (d.upgrade && typeof d.upgrade === "object") {
     d.upgrade.is_popup = 0;
   }
+  if (d.vip_gift && typeof d.vip_gift === "object") {
+    try {
+      d.vip_gift.enable = 0;
+      d.vip_gift.is_popup = 0;
+      d.vip_gift.vip_gift_replys = [];
+    } catch (_) {}
+  }
+
+  // 点「我的」常见弹窗：game_bonus
+  if (d.game_bonus && typeof d.game_bonus === "object") {
+    try {
+      if (d.game_bonus.free && typeof d.game_bonus.free === "object") {
+        d.game_bonus.free.free_game_bonus_popup_switch = 0;
+        d.game_bonus.free.free_game_bonus_popup_image = "";
+        d.game_bonus.free.free_game_bonus_popup_position = 0;
+      }
+      if (d.game_bonus.bubble && typeof d.game_bonus.bubble === "object") {
+        d.game_bonus.bubble.bottom_navigation_bubble_switch = 0;
+      }
+      if (d.game_bonus.wallet && typeof d.game_bonus.wallet === "object") {
+        d.game_bonus.wallet.my_game_bonus_guide_switch = 0;
+        d.game_bonus.wallet.my_game_bonus_wallet_android_switch = 0;
+        d.game_bonus.wallet.my_game_bonus_wallet_ios_switch = 0;
+      }
+    } catch (_) {}
+  }
+
+  if (d.partner && typeof d.partner === "object") {
+    d.partner.partner_entrance_switch = 0;
+  }
+  if (d.new_share && typeof d.new_share === "object") {
+    d.new_share.new_share_switch = 0;
+  }
+  d.is_share_red_point = 0;
+  d.quiz_status = 0;
+
+  killPopupSwitches(d);
 }
 
 function unlockBuyFields(node) {
@@ -421,13 +488,27 @@ function handleResponse() {
         json = emptyOk({ ad_status: 0, list: [] });
         changed = true;
       } else if (/\/vip\/getVipGiftPopup/i.test(path)) {
-        json = emptyOk({});
+        json = emptyOk([]);
         changed = true;
       } else if (/\/panda\/popup/i.test(path)) {
-        json = emptyOk({});
+        json = emptyOk([]);
         changed = true;
       } else if (/\/activityNavigations/i.test(path)) {
         json = emptyOk([]);
+        changed = true;
+      } else if (/\/blindBox\/getOngoingActivities/i.test(path)) {
+        json = emptyOk({ index: [], discovery: [], demand: [], game: [], my: [] });
+        changed = true;
+      } else if (/\/my\/unread/i.test(path)) {
+        if (json && json.data && typeof json.data === "object") {
+          json.data.comments = 0;
+          json.data.likes = 0;
+          json.data.notifies = 0;
+          json.data.feedback = 0;
+          changed = true;
+        }
+      } else if (/\/user\/oneLiveInfo/i.test(path)) {
+        json = emptyOk({ one_live_url: "" });
         changed = true;
       }
       // navigation
