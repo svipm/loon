@@ -13,7 +13,7 @@
  * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
  */
 
-//2026.07.19 fix7 - 可读版 + gh-proxy 拉 onetoken（原作者混淆脚本无法改镜像）
+//2026.07.20 fix8 - detail 响应：试看 video_hls 改写为正式 video_hls_h265
 
 const $ = new Env("one");
 
@@ -563,6 +563,44 @@ function unlockBuyFields(node) {
   }
 }
 
+// 抓包确认：buy=0 时客户端播 video_hls(试看 ODQw…)；正式片在 video_hls_h265(MzU4…)。
+// token 域不匹配时服务端仍回 buy=0，但原数据里已有正式路径，这里改写让播放器走正式流。
+function rewriteDetailToFullPlay(json) {
+  if (!json || typeof json !== "object") return false;
+  var data = json.data;
+  if (!data || typeof data !== "object") return false;
+
+  var beforeBuy = data.buy;
+  var beforeHls = data.video_hls || "";
+  var fullHls = data.video_hls_h265 || "";
+  var fullFile = data.video_file || "";
+
+  data.buy = 1;
+  if (data.is_limit_free != null) data.is_limit_free = 1;
+  if (data.is_preview != null) data.is_preview = 0;
+  if (data.preview != null && typeof data.preview !== "object") data.preview = 0;
+
+  if (fullHls) {
+    data.video_hls = fullHls;
+  } else if (fullFile && /\/encry\/vd\//.test(String(fullFile))) {
+    // 极端兜底：没有 h265 hls 时，至少别留试看 hash
+    data.video_hls = String(fullFile).replace(
+      /\/aac\/h265\/mp4\/decrypt\/[^/]+$/,
+      "/aac/h265/hls/decrypt/index.m3u8"
+    );
+  }
+
+  console.log(
+    "🎬 detail rewrite buy " +
+      beforeBuy +
+      "→1 hls " +
+      String(beforeHls).slice(-36) +
+      " → " +
+      String(data.video_hls || "").slice(-36)
+  );
+  return true;
+}
+
 function filterNavigation(list) {
   var map = {};
   for (var i = 0; i < (list || []).length; i++) {
@@ -594,12 +632,6 @@ function handleResponse() {
   var rawBody = ($response && $response.body) || "";
   function passthrough() {
     return $done({ body: rawBody });
-  }
-
-  // article/detail 响应：原作者明确放行，不做 body 改写
-  if (/\/article\/detail/i.test(url)) {
-    console.log("ℹ️ article/detail response passthrough（对齐原作者）");
-    return passthrough();
   }
 
   loadUtils()
@@ -634,6 +666,11 @@ function handleResponse() {
 
       var path = getPathname(url);
       var changed = false;
+
+      // article/detail：把试看 video_hls 改写成正式 video_hls_h265
+      if (/\/article\/detail/i.test(path) || /\/article\/detail/i.test(url)) {
+        if (rewriteDetailToFullPlay(json)) changed = true;
+      }
 
       // /ad/space
       if (/\/ad\/space/i.test(path) || /\/ad\/space/i.test(url)) {
