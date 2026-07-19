@@ -13,7 +13,7 @@
  * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
  */
 
-//2026.07.19 fix3b - gh-proxy 优先 + token 源日志
+//2026.07.19 fix4 - detail 只改 header、不动 body（对齐原作者 script-request-header）
 
 const $ = new Env("one");
 
@@ -209,12 +209,7 @@ function requestHost(url) {
 }
 
 function applyTokenHeaders(headers, token, url) {
-  // 原作者只覆盖单个小写 token。不要写 Token/Authorization（会双 token / 多鉴权头）。
-  var keys = Object.keys(headers || {});
-  for (var i = 0; i < keys.length; i++) {
-    var lk = String(keys[i]).toLowerCase();
-    if (lk === "token" || lk === "authorization") delete headers[keys[i]];
-  }
+  // 对齐原作者：只覆盖 headers.token，其它头一律不动。
   headers.token = token;
 
   var payload = decodeJwtPayload(token);
@@ -226,9 +221,7 @@ function applyTokenHeaders(headers, token, url) {
         " sub=" +
         payload.sub +
         " exp=" +
-        payload.exp +
-        " uuid=" +
-        (payload.uuid || "")
+        payload.exp
     );
     if (
       payload.sub &&
@@ -236,18 +229,10 @@ function applyTokenHeaders(headers, token, url) {
       String(payload.sub).toLowerCase() !== String(host).toLowerCase()
     ) {
       console.log(
-        "⚠️ token.sub 与 API 域名不一致: sub=" +
-          payload.sub +
-          " host=" +
-          host +
-          " → 很容易仍是试看"
+        "⚠️ token.sub=" + payload.sub + " host=" + host + "（原作者也不改 host）"
       );
     }
   }
-  console.log(
-    "⚠️ 原请求 sign/uuid/user-key 未改；sign=" +
-      (headers.sign || headers.Sign || "")
-  );
   return headers;
 }
 
@@ -263,20 +248,25 @@ function parseTokenPayload(data) {
   return trimmed || null;
 }
 
+function doneRequestHeaders(headers) {
+  // 关键：原作者 QX 规则是 script-request-header，只改头、绝不碰 body。
+  // Loon 的 http-request 若 $done({body: undefined}) 可能把 POST 体弄丢，导致只能试看。
+  return $done({ headers: headers });
+}
+
 function injectTokenAndDone(headers, body) {
   var finished = false;
   var failCount = 0;
   var total = TOKEN_SOURCES.length;
   var reqUrl = ($request && $request.url) || "";
-  var cached = ($.getdata && $.getdata(TOKEN_CACHE_KEY)) || "";
+  // 换缓存键，清掉旧版双 token / 脏缓存
+  var cacheKey = TOKEN_CACHE_KEY + "_v4";
+  var cached = ($.getdata && $.getdata(cacheKey)) || "";
   if (cached && isValidToken(cached)) {
     console.log(
       "✅ one token cache hit len=" + cached.length + " head=" + cached.slice(0, 16)
     );
-    return $done({
-      headers: applyTokenHeaders(headers, cached, reqUrl),
-      body: body,
-    });
+    return doneRequestHeaders(applyTokenHeaders(headers, cached, reqUrl));
   }
 
   console.log("⏳ one token 开始拉取, 源数=" + total + ", 优先=" + sourceLabel(TOKEN_SOURCES[0]));
@@ -285,19 +275,17 @@ function injectTokenAndDone(headers, body) {
     if (finished) return;
     if (token && isValidToken(token)) {
       finished = true;
-      if ($.setdata) $.setdata(token, TOKEN_CACHE_KEY);
+      if ($.setdata) $.setdata(token, cacheKey);
       console.log(
         "✅ one token injected via " +
           label +
           " len=" +
           token.length +
           " head=" +
-          token.slice(0, 16)
+          token.slice(0, 16) +
+          " (headers-only, body untouched)"
       );
-      return $done({
-        headers: applyTokenHeaders(headers, token, reqUrl),
-        body: body,
-      });
+      return doneRequestHeaders(applyTokenHeaders(headers, token, reqUrl));
     }
     failCount++;
     console.log(
@@ -313,7 +301,7 @@ function injectTokenAndDone(headers, body) {
       console.log("❌ Token获取失败，所有源都无法获取有效token → 只会试看");
       console.log(CONTACT);
       finished = true;
-      return $done({ headers: headers, body: body });
+      return doneRequestHeaders(headers);
     }
   }
 
@@ -346,7 +334,7 @@ function injectTokenAndDone(headers, body) {
       finished = true;
       console.log("❌ Token获取超时(10s) → 只会试看");
       console.log(CONTACT);
-      $done({ headers: headers, body: body });
+      doneRequestHeaders(headers);
     }
   }, 10000);
 }

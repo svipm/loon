@@ -1,5 +1,5 @@
 #!name=一个(o*N) 去广告解锁
-#!desc=清我的页弹窗；gh-proxy token；修试看 2026.07.19 fix3b
+#!desc=清我的页弹窗；detail只改header对齐原作者 2026.07.19 fix4
 #!icon=https://gh-proxy.com/https://raw.githubusercontent.com/Yu9191/Rewrite/main/icon.png
 
 [Rewrite]
