@@ -13,7 +13,7 @@
  * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
  */
 
-//2026.07.19 fix5 - detail 响应 buy=1（抓包112：完整hls已下发，客户端看buy）
+//2026.07.19 fix6 - detail 解锁改回原作者脚本；撤销 buy=1 猜测
 
 const $ = new Env("one");
 
@@ -248,9 +248,9 @@ function parseTokenPayload(data) {
   return trimmed || null;
 }
 
-function doneRequestHeaders(headers) {
-  // 关键：原作者 QX 规则是 script-request-header，只改头、绝不碰 body。
-  // Loon 的 http-request 若 $done({body: undefined}) 可能把 POST 体弄丢，导致只能试看。
+function doneRequestHeaders(headers, body) {
+  // 对齐原作者：$done({ headers, body })
+  if (typeof body === "string") return $done({ headers: headers, body: body });
   return $done({ headers: headers });
 }
 
@@ -259,14 +259,13 @@ function injectTokenAndDone(headers, body) {
   var failCount = 0;
   var total = TOKEN_SOURCES.length;
   var reqUrl = ($request && $request.url) || "";
-  // 换缓存键，清掉旧版双 token / 脏缓存
   var cacheKey = TOKEN_CACHE_KEY + "_v4";
   var cached = ($.getdata && $.getdata(cacheKey)) || "";
   if (cached && isValidToken(cached)) {
     console.log(
       "✅ one token cache hit len=" + cached.length + " head=" + cached.slice(0, 16)
     );
-    return doneRequestHeaders(applyTokenHeaders(headers, cached, reqUrl));
+    return doneRequestHeaders(applyTokenHeaders(headers, cached, reqUrl), body);
   }
 
   console.log("⏳ one token 开始拉取, 源数=" + total + ", 优先=" + sourceLabel(TOKEN_SOURCES[0]));
@@ -282,10 +281,9 @@ function injectTokenAndDone(headers, body) {
           " len=" +
           token.length +
           " head=" +
-          token.slice(0, 16) +
-          " (headers-only, body untouched)"
+          token.slice(0, 16)
       );
-      return doneRequestHeaders(applyTokenHeaders(headers, token, reqUrl));
+      return doneRequestHeaders(applyTokenHeaders(headers, token, reqUrl), body);
     }
     failCount++;
     console.log(
@@ -301,7 +299,7 @@ function injectTokenAndDone(headers, body) {
       console.log("❌ Token获取失败，所有源都无法获取有效token → 只会试看");
       console.log(CONTACT);
       finished = true;
-      return doneRequestHeaders(headers);
+      return doneRequestHeaders(headers, body);
     }
   }
 
@@ -334,7 +332,7 @@ function injectTokenAndDone(headers, body) {
       finished = true;
       console.log("❌ Token获取超时(10s) → 只会试看");
       console.log(CONTACT);
-      doneRequestHeaders(headers);
+      doneRequestHeaders(headers, body);
     }
   }, 10000);
 }
@@ -598,8 +596,12 @@ function handleResponse() {
     return $done({ body: rawBody });
   }
 
-  // article/detail: 先放行不再改 body 的策略已证明会留下 buy=0 试看。
-  // 抓包 112：服务端已下发完整 video_hls，客户端靠 buy 决定是否完整播。
+  // article/detail 响应：原作者明确放行，不做 body 改写
+  if (/\/article\/detail/i.test(url)) {
+    console.log("ℹ️ article/detail response passthrough（对齐原作者）");
+    return passthrough();
+  }
+
   loadUtils()
     .then(function (utils) {
       if (!utils || typeof utils.createCryptoJS !== "function") {
@@ -697,35 +699,11 @@ function handleResponse() {
           }
         }
       }
-      // discovery / day / detail
-      else if (
-        /\/article\/discovery/i.test(path) ||
-        /\/article\/day/i.test(path) ||
-        /\/article\/detail/i.test(path)
-      ) {
+      // discovery / day（原作者只在这些列表接口递归 buy=1；detail 不改）
+      else if (/\/article\/discovery/i.test(path) || /\/article\/day/i.test(path)) {
         if (json) {
           unlockBuyFields(json);
-          if (json.data && typeof json.data === "object") {
-            json.data.buy = 1;
-            if (json.data.is_limit_free != null) json.data.is_limit_free = 1;
-            if (json.data.is_decode != null) json.data.is_decode = 1;
-            // 有 preview 也强制走正片字段
-            if (json.data.preview_video && json.data.video_file) {
-              json.data.preview_video = json.data.video_file;
-            }
-            if (json.data.preview_video && json.data.video_hls && !json.data.video_file) {
-              json.data.preview_video = json.data.video_hls;
-            }
-          }
           changed = true;
-          if (/\/article\/detail/i.test(path)) {
-            console.log(
-              "✅ detail unlock buy=" +
-                (json.data && json.data.buy) +
-                " has_hls=" +
-                !!(json.data && json.data.video_hls)
-            );
-          }
         }
       }
       // userExtraInfo
