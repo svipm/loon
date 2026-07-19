@@ -13,7 +13,7 @@
 ^https?:\/\/[^\/]+\/storage\/blind_box_activity\/ - reject
 
 [Script]
-http-response ^https?:\/\/[^\/]+\/v2\.5\/(?:bootstrap|user\/login|user\/avatarFrame|user\/oneLiveInfo|article\/discovery|article\/day|article\/detail|navigation|ad\/space|my\/userExtraInfo|my\/unread|popup\/activityInfo|vip\/getVipGiftPopup|panda\/popup|upgrade|activityNavigations|blindBox\/getOngoingActivities) script-path=https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/One1222.fixed.js, requires-body=true, timeout=60, tag=一个-响应改写
+http-response ^https?:\/\/[^\/]+\/v2\.5\/(?:bootstrap|user\/login|user\/avatarFrame|user\/oneLiveInfo|article\/discovery|article\/day|navigation|ad\/space|my\/userExtraInfo|my\/unread|popup\/activityInfo|vip\/getVipGiftPopup|panda\/popup|upgrade|activityNavigations|blindBox\/getOngoingActivities) script-path=https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/One1222.fixed.js, requires-body=true, timeout=60, tag=一个-响应改写
 http-request ^https?:\/\/[^\/]+\/v2\.5\/article\/detail script-path=https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/One1222.fixed.js, timeout=60, tag=一个-token
 
 [MITM]

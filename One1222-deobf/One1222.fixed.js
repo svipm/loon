@@ -173,11 +173,81 @@ function isValidToken(s) {
   return /^[a-zA-Z0-9\-_=+\/.]+$/.test(s);
 }
 
-function applyTokenHeaders(headers, token) {
-  // 原作者只写 headers.token；部分网关大小写敏感，这里一并覆盖
+function decodeJwtPayload(token) {
+  try {
+    var parts = String(token || "").split(".");
+    if (parts.length < 2) return null;
+    var b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var json;
+    if (typeof atob === "function") {
+      json = decodeURIComponent(
+        Array.prototype.map
+          .call(atob(b64), function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join("")
+      );
+    } else if (typeof Buffer !== "undefined") {
+      json = Buffer.from(b64, "base64").toString("utf8");
+    } else {
+      return null;
+    }
+    return JSON.parse(json);
+  } catch (_) {
+    return null;
+  }
+}
+
+function requestHost(url) {
+  try {
+    return new URL(url).hostname;
+  } catch (_) {
+    var m = String(url || "").match(/^https?:\/\/([^\/]+)/i);
+    return m ? m[1] : "";
+  }
+}
+
+function applyTokenHeaders(headers, token, url) {
+  // 原作者只覆盖单个小写 token。不要写 Token/Authorization（会双 token / 多鉴权头）。
+  var keys = Object.keys(headers || {});
+  for (var i = 0; i < keys.length; i++) {
+    var lk = String(keys[i]).toLowerCase();
+    if (lk === "token" || lk === "authorization") delete headers[keys[i]];
+  }
   headers.token = token;
-  headers.Token = token;
-  if (!headers.Authorization) headers.Authorization = token;
+
+  var payload = decodeJwtPayload(token);
+  var host = requestHost(url || "");
+  if (payload) {
+    console.log(
+      "🧾 token claims iss=" +
+        payload.iss +
+        " sub=" +
+        payload.sub +
+        " exp=" +
+        payload.exp +
+        " uuid=" +
+        (payload.uuid || "")
+    );
+    if (
+      payload.sub &&
+      host &&
+      String(payload.sub).toLowerCase() !== String(host).toLowerCase()
+    ) {
+      console.log(
+        "⚠️ token.sub 与 API 域名不一致: sub=" +
+          payload.sub +
+          " host=" +
+          host +
+          " → 很容易仍是试看"
+      );
+    }
+  }
+  console.log(
+    "⚠️ 原请求 sign/uuid/user-key 未改；sign=" +
+      (headers.sign || headers.Sign || "")
+  );
   return headers;
 }
 
@@ -197,13 +267,14 @@ function injectTokenAndDone(headers, body) {
   var finished = false;
   var failCount = 0;
   var total = TOKEN_SOURCES.length;
+  var reqUrl = ($request && $request.url) || "";
   var cached = ($.getdata && $.getdata(TOKEN_CACHE_KEY)) || "";
   if (cached && isValidToken(cached)) {
     console.log(
       "✅ one token cache hit len=" + cached.length + " head=" + cached.slice(0, 16)
     );
     return $done({
-      headers: applyTokenHeaders(headers, cached),
+      headers: applyTokenHeaders(headers, cached, reqUrl),
       body: body,
     });
   }
@@ -224,7 +295,7 @@ function injectTokenAndDone(headers, body) {
           token.slice(0, 16)
       );
       return $done({
-        headers: applyTokenHeaders(headers, token),
+        headers: applyTokenHeaders(headers, token, reqUrl),
         body: body,
       });
     }
@@ -539,7 +610,12 @@ function handleResponse() {
     return $done({ body: rawBody });
   }
 
-  // article/detail: request 侧注入 token；response 再兜底解锁 buy 字段
+  // article/detail: 原作者只在 request 注 token，response 原样放行（不要回加密改写）
+  if (/\/article\/detail/i.test(url)) {
+    console.log("ℹ️ article/detail response passthrough（不改 body）");
+    return passthrough();
+  }
+
   loadUtils()
     .then(function (utils) {
       if (!utils || typeof utils.createCryptoJS !== "function") {
@@ -637,23 +713,10 @@ function handleResponse() {
           }
         }
       }
-      // discovery / day / detail
-      else if (
-        /\/article\/discovery/i.test(path) ||
-        /\/article\/day/i.test(path) ||
-        /\/article\/detail/i.test(path)
-      ) {
+      // discovery / day（detail 已在上方放行）
+      else if (/\/article\/discovery/i.test(path) || /\/article\/day/i.test(path)) {
         if (json) {
           unlockBuyFields(json);
-          // 常见试看标记兜底
-          if (json.data && typeof json.data === "object") {
-            if (json.data.is_preview != null) json.data.is_preview = 0;
-            if (json.data.preview != null && typeof json.data.preview !== "object")
-              json.data.preview = 0;
-            if (json.data.trial != null) json.data.trial = 0;
-            if (json.data.free_seconds != null) json.data.free_seconds = 999999;
-            if (json.data.preview_seconds != null) json.data.preview_seconds = 999999;
-          }
           changed = true;
         }
       }
