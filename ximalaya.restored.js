@@ -253,7 +253,7 @@ const VipHandler = {
     Object.assign(data, {
       isVip: true,
       vipStatus: 4,
-      nickname: "t.me/GieGie777",
+      nickname: "fxm",
     });
     if (data.childTag) {
       data.childTag = {
@@ -265,7 +265,7 @@ const VipHandler = {
     Object.assign(data, {
       vLogoType: 2,
       mobileMiddleLogo:
-        "http://ykhp-user-imges.yikaobang.com.cn/Uploads/Avatar/2024/08/18/66c188e2d4fab.jpg",
+        "https://q1.qlogo.cn/g?b=qq&nk=2838911647&s=640",
     });
     if (data.userGradeInfo) {
       data.userGradeInfo.level = 8;
