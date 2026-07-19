@@ -13,7 +13,7 @@
  * Quantumult X / Surge 规则见文件头注释；Loon 请直接装 One.plugin
  */
 
-//2026.07.19 fix6 - detail 解锁改回原作者脚本；撤销 buy=1 猜测
+//2026.07.19 fix7 - 可读版 + gh-proxy 拉 onetoken（原作者混淆脚本无法改镜像）
 
 const $ = new Env("one");
 
