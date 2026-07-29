@@ -2,6 +2,12 @@
 
 个人 Loon 插件仓库，仅供学习、研究与个人网络环境测试使用。默认推荐 iPhone 上使用 `GitHubFast.plugin` 优化 GitHub 访问。
 
+## 资源索引
+
+- [公开 Loon / Quantumult X / Surge / JS 总索引](RESOURCE_LINKS.md)：按功能分类，包含目标 App / 网站、用途、来源、文件和直链。
+- [手机已安装 App 专用索引](INSTALLED_APP_LINKS.md)：按你列出的 App / 网站分组，并在表头汇总实际适用目标和主要功能 / 用途。
+- 生成脚本：`scripts/build-resource-index.ps1`、`scripts/build-installed-app-index.ps1`。
+
 
 ## 推荐方案：GitHubFast.plugin
 
