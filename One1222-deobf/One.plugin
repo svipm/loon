@@ -1,0 +1,22 @@
+#!name=一个(o*N) 去广告解锁
+#!desc=detail试看路径改写为正式hls 2026.07.20 fix8
+#!icon=https://gh-proxy.com/https://raw.githubusercontent.com/Yu9191/Rewrite/main/icon.png
+
+[Rewrite]
+# 广告素材
+^https?:\/\/[^\/]+\/storage\/commercial\/ - reject
+# 广告 HLS 视频
+^https?:\/\/[^\/]+\/encry\/ad\/ - reject
+# 我的页游戏奖励弹窗图
+^https?:\/\/[^\/]+\/storage\/game_bonus\/ - reject
+# 盲盒活动图
+^https?:\/\/[^\/]+\/storage\/blind_box_activity\/ - reject
+
+[Script]
+# 去广告 / detail 试看改正式流
+http-response ^https?:\/\/[^\/]+\/v2\.5\/(?:bootstrap|user\/login|user\/avatarFrame|user\/oneLiveInfo|article\/discovery|article\/day|article\/detail|navigation|ad\/space|my\/userExtraInfo|my\/unread|popup\/activityInfo|vip\/getVipGiftPopup|panda\/popup|upgrade|activityNavigations|blindBox\/getOngoingActivities) script-path=https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/One1222.fixed.js, requires-body=true, timeout=60, tag=一个-响应改写
+# detail 请求：仍注入 VIP token（有匹配域时优先走服务端真解锁）
+http-request ^https?:\/\/[^\/]+\/v2\.5\/article\/detail script-path=https://gh-proxy.com/https://raw.githubusercontent.com/svipm/loon/main/One1222.fixed.js, timeout=60, tag=一个-token
+
+[MITM]
+hostname = 0325api.*, api.*, jmtp.*, qqcapi.*, *api*.*, *jmtp*.*, ysp*.*, jmt*.*, enimg*.*, dlmk*.*, *scycjz.com, *rjpdf.com, *xqjby.com, *alovecdn.com, *b675211.com, *vf5x3hv.com, *e5qj84j.com, *nzawfzs.com, *cy7mz94.com

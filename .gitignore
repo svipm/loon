@@ -1,0 +1,7 @@
+# 本地/临时分析产物，不进仓库
+One1222-deobf/_cap106_*/
+One1222-deobf/_cap106_*.csv
+One1222-deobf/verify_fix3.mjs
+One1222-deobf/_readable_biz.js
+One1222-deobf/_video_core.js
+*.zip
